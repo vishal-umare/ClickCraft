@@ -119,7 +119,7 @@ export function Header() {
             alt="ClickCraft logo"
             width={28}
             height={28}
-            className="h-7 w-7 object-contain mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:rounded-md dark:p-0.5"
+            className="h-7 w-7 object-contain"
           />
           <span className="font-display text-[16px] font-bold leading-none text-ink">
             Click<span className="text-primary">Craft</span>

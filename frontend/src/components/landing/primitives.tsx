@@ -12,8 +12,7 @@ export function Logo({ inverse = false }: { inverse?: boolean }) {
         width={36}
         height={36}
         className={cn(
-          'h-9 w-9 object-contain',
-          inverse ? 'mix-blend-screen' : 'mix-blend-multiply',
+          'h-9 w-9 object-contain'
         )}
       />
       <span className={cn('font-display text-lg font-bold', inverse ? 'text-primary-foreground' : 'text-ink')}>
