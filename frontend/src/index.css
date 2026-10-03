@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Inter", ui-monospace, monospace;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-signal: var(--signal);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.99 0.004 275);
+  --foreground: oklch(0.28 0.09 273);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.28 0.09 273);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.28 0.09 273);
+  --primary: oklch(0.59 0.22 260);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.91 0.045 285);
+  --secondary-foreground: oklch(0.28 0.09 273);
+  --muted: oklch(0.965 0.012 270);
+  --muted-foreground: oklch(0.5 0.035 273);
+  --accent: oklch(0.92 0.07 155);
+  --accent-foreground: oklch(0.25 0.07 165);
+  --signal: oklch(0.59 0.22 260);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.87 0.02 275);
+  --input: oklch(0.87 0.02 275);
+  --ring: oklch(0.59 0.22 260);
+  --ink: oklch(0.28 0.09 273);
+  --periwinkle: oklch(0.91 0.045 285);
+  --mint: oklch(0.92 0.07 155);
+  --soft-blue: oklch(0.95 0.025 255);
+  --shadow-soft: 0 24px 70px -30px oklch(0.28 0.09 273 / 0.22);
+}
+
+.dark {
+  --background: #0B1020;
+  --foreground: #F5F7FF;
+  --card: #151D32;
+  --card-foreground: #F5F7FF;
+  --popover: #19223A;
+  --popover-foreground: #F5F7FF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #10172A;
+  --secondary-foreground: #A8B1C5;
+  --muted: #10172A;
+  --muted-foreground: #7F8AA3;
+  --border: #26314A;
+  --input: #26314A;
+  --ink: #F5F7FF;
+
+  --dark-glow-hero: radial-gradient(circle at 50% 0%, oklch(0.59 0.22 260 / 0.16), transparent 55%);
+  --dark-glow-soft: radial-gradient(circle at 50% 50%, oklch(0.59 0.22 260 / 0.08), transparent 65%);
+  --dark-glow-ambient: radial-gradient(circle at 50% 0%, oklch(0.59 0.22 260 / 0.07), transparent 75%);
+}
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { letter-spacing: -0.025em; }
+  section[id] { scroll-margin-top: 5rem; }
+  ::selection { background: var(--primary); color: var(--primary-foreground); }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+@utility bg-ink { background-color: var(--ink); }
+@utility bg-periwinkle { background-color: var(--periwinkle); }
+@utility bg-mint { background-color: var(--mint); }
+@utility bg-soft-blue { background-color: var(--soft-blue); }
+@utility text-ink { color: var(--ink); }
+@utility shadow-soft { box-shadow: var(--shadow-soft); }
+
+@utility bg-dark-glow-hero { background-image: var(--dark-glow-hero); }
+@utility bg-dark-glow-soft { background-image: var(--dark-glow-soft); }
+@utility bg-dark-glow-ambient { background-image: var(--dark-glow-ambient); }
+
+
