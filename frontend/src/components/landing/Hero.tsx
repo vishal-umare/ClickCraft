@@ -9,13 +9,13 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden"
+      className="relative overflow-hidden scroll-mt-20"
     >
       {/* Very subtle ambient gradient — not dominating */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_20%_60%,var(--periwinkle)/0.3,transparent),radial-gradient(ellipse_40%_40%_at_85%_45%,var(--mint)/0.2,transparent)] dark:opacity-100 dark:bg-[image:var(--dark-glow-hero)]" />
 
       {/* Hero copy */}
-      <div className="relative mx-auto max-w-3xl px-5 pt-14 text-center md:px-8 md:pt-20">
+      <div className="relative mx-auto max-w-3xl px-4 pt-16 text-center sm:pt-20 md:px-8 md:pt-24">
         {/* Eyebrow */}
         <motion.p
           initial={{ opacity: 0, y: 6 }}
@@ -57,7 +57,7 @@ export function Hero() {
         >
           <button
             onClick={() => scrollToId('preview')}
-            className="group inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/15 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
+            className="group inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg bg-primary px-6 py-3 sm:py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/15 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20"
           >
             Create a thumbnail
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -73,7 +73,7 @@ export function Hero() {
       </div>
 
       {/* Generator — tight coupling with hero copy */}
-      <div id="preview" className="relative mx-auto max-w-5xl scroll-mt-20 px-5 pb-24 pt-10 md:px-8 md:pb-32 md:pt-12">
+      <div id="preview" className="relative mx-auto max-w-5xl scroll-mt-20 px-4 pb-16 pt-10 sm:pb-24 md:px-8 md:pb-32 md:pt-12">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}

@@ -1,30 +1,29 @@
 import React from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useScroll } from '@/hooks/use-scroll'
+import { useTheme } from '@/hooks/use-theme'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Portal, PortalBackdrop } from '@/components/portal'
-import { XIcon, MenuIcon, Sun, Moon } from 'lucide-react'
-import { toast } from 'sonner'
-import { useTheme } from '@/hooks/use-theme'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
-import { AppHeader } from '@/components/app/AppHeader'
+import { XIcon, MenuIcon, Sun, Moon, Home, Sparkles, Image, LogOut } from 'lucide-react'
 
-export const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Explore Collection', href: '#gallery' },
+const appNavLinks = [
+  { label: 'Home', href: '/', icon: Home },
+  { label: 'Generate', href: '/generate', icon: Sparkles },
+  { label: 'My Generations', href: '/generations', icon: Image },
 ]
 
-export function MobileNav() {
+export function AppMobileNav() {
   const [open, setOpen] = React.useState(false)
   const { theme, toggleTheme } = useTheme()
+  const { logout } = useAuth()
   const navigate = useNavigate()
 
   return (
     <div className="md:hidden">
       <Button
-        aria-controls="mobile-menu"
+        aria-controls="app-mobile-menu"
         aria-expanded={open}
         aria-label="Toggle menu"
         className="md:hidden"
@@ -35,7 +34,7 @@ export function MobileNav() {
         {open ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
       </Button>
       {open && (
-        <Portal className="top-[60px]" id="mobile-menu">
+        <Portal className="top-[60px]" id="app-mobile-menu">
           <PortalBackdrop />
           <div
             className={cn(
@@ -45,19 +44,23 @@ export function MobileNav() {
             data-slot={open ? 'open' : 'closed'}
           >
             <div className="grid gap-y-2">
-              {navLinks.map((link) => (
-                <Button
-                  key={link.label}
-                  className="justify-start text-base font-medium text-ink dark:text-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary transition-colors duration-200"
-                  variant="ghost"
-                  onClick={() => {
-                    setOpen(false)
-                    document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' })
-                  }}
-                >
-                  {link.label}
-                </Button>
-              ))}
+              {appNavLinks.map((link) => {
+                const Icon = link.icon
+                return (
+                  <Button
+                    key={link.label}
+                    className="justify-start gap-2.5 text-base font-medium text-ink dark:text-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary transition-colors duration-200"
+                    variant="ghost"
+                    onClick={() => {
+                      setOpen(false)
+                      navigate(link.href)
+                    }}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {link.label}
+                  </Button>
+                )
+              })}
             </div>
             <div className="mt-8 flex flex-col gap-3 border-t border-border pt-6">
               <Button
@@ -72,14 +75,16 @@ export function MobileNav() {
                 {theme === 'dark' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
               </Button>
               <Button
-                className="w-full justify-start text-base hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary transition-colors duration-200"
+                className="w-full justify-start gap-2.5 text-base text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors duration-200"
                 variant="ghost"
                 onClick={() => {
+                  logout()
                   setOpen(false)
-                  navigate('/login')
+                  navigate('/')
                 }}
               >
-                Sign In
+                <LogOut className="h-4 w-4" />
+                Log out
               </Button>
             </div>
           </div>
@@ -89,15 +94,12 @@ export function MobileNav() {
   )
 }
 
-export function Header() {
+export function AppHeader() {
   const scrolled = useScroll(10)
   const { theme, toggleTheme } = useTheme()
-  const { isAuthenticated } = useAuth()
+  const { logout } = useAuth()
   const navigate = useNavigate()
-
-  if (isAuthenticated) {
-    return <AppHeader />
-  }
+  const location = useLocation()
 
   return (
     <header
@@ -107,7 +109,6 @@ export function Header() {
           'border-border bg-background shadow-sm md:top-4 md:max-w-4xl md:shadow-md':
             scrolled,
         },
-        // When not scrolled, we want it to blend in perfectly.
         !scrolled && 'bg-background md:border-transparent md:top-0'
       )}
     >
@@ -120,8 +121,8 @@ export function Header() {
         )}
       >
         {/* Left: Logo */}
-        <a
-          href="#top"
+        <Link
+          to="/"
           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted/60"
         >
           <img
@@ -131,29 +132,35 @@ export function Header() {
             height={28}
             className="h-7 w-7 object-contain"
           />
-          <span className="font-display text-[16px] font-bold leading-none text-ink">
+          <span className="font-display text-[16px] font-bold leading-none text-ink dark:text-foreground">
             Click<span className="text-primary">Craft</span>
           </span>
-        </a>
+        </Link>
 
         {/* Center: Nav links */}
         <div className="hidden items-center gap-1 md:flex absolute left-1/2 -translate-x-1/2">
-          {navLinks.map((link) => (
-            <Button
-              key={link.label}
-              size="sm"
-              variant="ghost"
-              className="text-[13px] font-medium text-slate-600 dark:text-muted-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary transition-colors duration-200"
-              onClick={() =>
-                document.querySelector(link.href)?.scrollIntoView({ behavior: 'smooth' })
-              }
-            >
-              {link.label}
-            </Button>
-          ))}
+          {appNavLinks.map((link) => {
+            const active = location.pathname === link.href
+            return (
+              <Button
+                key={link.label}
+                size="sm"
+                variant="ghost"
+                className={cn(
+                  'text-[13px] font-medium transition-colors duration-200',
+                  active
+                    ? 'bg-primary/10 text-primary dark:bg-primary/20'
+                    : 'text-slate-600 dark:text-muted-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary'
+                )}
+                onClick={() => navigate(link.href)}
+              >
+                {link.label}
+              </Button>
+            )
+          })}
         </div>
 
-        {/* Right: CTA buttons */}
+        {/* Right: Actions */}
         <div className="hidden items-center gap-2 md:flex">
           <Button
             size="icon"
@@ -167,15 +174,19 @@ export function Header() {
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => navigate('/login')}
+            onClick={() => {
+              logout()
+              navigate('/')
+            }}
             className="text-[13px] font-medium text-slate-600 dark:text-muted-foreground hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary transition-colors duration-200"
           >
-            Sign In
+            <LogOut className="mr-1.5 h-3.5 w-3.5" />
+            Log out
           </Button>
         </div>
 
         {/* Mobile Nav */}
-        <MobileNav />
+        <AppMobileNav />
       </nav>
     </header>
   )

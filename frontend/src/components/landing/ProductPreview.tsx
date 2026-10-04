@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { AuthGateModal } from '@/components/AuthGateModal'
+import { useGenerations } from '@/contexts/GenerationContext'
 
 import cinematic from '@/assets/thumbs/cinematic.jpg'
 import shortsCinematic from '@/assets/thumbs/shorts_cinematic.jpg'
@@ -242,6 +244,9 @@ export function ProductPreview() {
   const [thumbnailStyle, setThumbnailStyle] = useState<ThumbnailStyle>('bold-graphic')
   const [colorScheme, setColorScheme] = useState<ColorScheme>('midnight')
   const [additionalPrompt, setAdditionalPrompt] = useState('')
+  const [showAuthGate, setShowAuthGate] = useState(false)
+
+  const { canGenerate, addGeneration } = useGenerations()
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false)
@@ -278,22 +283,43 @@ export function ProductPreview() {
     .slice(0, 40)
 
   const handleGenerate = () => {
+    if (!canGenerate()) {
+      setShowAuthGate(true)
+      return
+    }
+
     setIsGenerating(true)
     setTimeout(() => {
       setIsGenerating(false)
       if (isYoutube) {
         setSelectedYoutubeVar(-1)
-        setYoutubeAsset({
-          ...defaultYoutubeAsset,
-          headline,
+        const newAsset = { ...defaultYoutubeAsset, headline }
+        setYoutubeAsset(newAsset)
+        
+        addGeneration({
+          title: titleOrTopic,
+          format: 'youtube',
+          style: thumbnailStyle,
+          colorScheme,
+          prompt: additionalPrompt,
+          imageUrl: newAsset.src,
         })
+        
         toast.success('YouTube thumbnail generated (1280 × 720)')
       } else {
         setSelectedShortsVar(-1)
-        setShortsAsset({
-          ...defaultShortsAssetTemplate,
-          headline,
+        const newAsset = { ...defaultShortsAssetTemplate, headline }
+        setShortsAsset(newAsset)
+        
+        addGeneration({
+          title: titleOrTopic,
+          format: 'shorts',
+          style: thumbnailStyle,
+          colorScheme,
+          prompt: additionalPrompt,
+          imageUrl: newAsset.src,
         })
+        
         toast.success('Shorts thumbnail generated (1080 × 1920)')
       }
     }, 1400)
@@ -318,7 +344,7 @@ export function ProductPreview() {
       <div className="grid lg:grid-cols-[minmax(300px,0.38fr)_minmax(0,0.62fr)]">
 
         {/* ━━ LEFT: Configuration panel ━━ */}
-        <div className="flex flex-col gap-3.5 border-b border-border/40 p-5 lg:border-b-0 lg:border-r lg:p-6">
+        <div className="flex flex-col gap-3.5 border-b border-border/40 p-4 sm:p-5 lg:border-b-0 lg:border-r lg:p-6">
 
           {/* Panel header */}
           <h3 className="text-[13px] font-bold uppercase tracking-[0.08em] text-foreground">
@@ -497,7 +523,7 @@ export function ProductPreview() {
             onClick={handleGenerate}
             disabled={isGenerating || titleOrTopic.trim().length === 0}
             className={cn(
-              'mt-auto inline-flex h-[48px] items-center justify-center gap-2.5 rounded-xl text-[14px] font-semibold transition-all duration-200',
+              'mt-2 inline-flex h-[44px] sm:h-[48px] items-center justify-center gap-2.5 rounded-xl text-[14px] font-semibold transition-all duration-200',
               'bg-primary text-primary-foreground shadow-md shadow-primary/15',
               'hover:shadow-lg hover:shadow-primary/25 hover:brightness-110',
               'disabled:pointer-events-none disabled:opacity-60',
@@ -533,7 +559,7 @@ export function ProductPreview() {
         </div>
 
         {/* ━━ RIGHT: Output panel (structurally fixed) ━━ */}
-        <div className="flex flex-col gap-4 p-5 lg:p-6">
+        <div className="flex flex-col gap-4 p-4 sm:p-5 lg:p-6 min-w-0">
 
           {/* Toolbar */}
           <div className="flex items-center justify-between">
@@ -571,7 +597,7 @@ export function ProductPreview() {
           </div>
 
           {/* ━━ FIXED PREVIEW STAGE ━━ */}
-          <div className="relative flex w-full items-center justify-center overflow-hidden rounded-[18px] border border-border/40 bg-muted/20 p-2 sm:p-2.5 aspect-[16/9] min-h-[240px] sm:min-h-[290px] lg:min-h-[320px]">
+          <div className="relative flex w-full items-center justify-center overflow-hidden rounded-[16px] sm:rounded-[18px] border border-border/40 bg-muted/20 p-2 sm:p-3 min-h-[200px] sm:min-h-[260px] lg:min-h-[320px]">
             <AnimatePresence mode="wait">
               {isGenerating ? (
                 <motion.div
@@ -784,6 +810,7 @@ export function ProductPreview() {
           </div>
         </div>
       </div>
+      <AuthGateModal open={showAuthGate} onClose={() => setShowAuthGate(false)} />
     </div>
   )
 }

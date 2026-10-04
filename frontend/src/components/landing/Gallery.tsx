@@ -10,8 +10,8 @@ export function Gallery() {
   const items = cat === 'All' ? thumbnails : thumbnails.filter((t) => t.category === cat)
 
   return (
-    <section id="gallery" className="border-t border-slate-200/60 dark:border-border/60 bg-slate-50 dark:bg-background py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
+    <section id="gallery" className="border-t border-slate-200/60 dark:border-border/60 bg-slate-50 dark:bg-background py-16 sm:py-24 md:py-32">
+      <div className="mx-auto max-w-7xl px-4 md:px-8">
         <Reveal className="mb-16 text-center">
           <SectionLabel index="03">Explore the Collection</SectionLabel>
           <h2 className="mx-auto mt-5 max-w-2xl font-display text-4xl font-bold leading-[1.1] text-ink dark:text-foreground md:text-5xl">
@@ -39,7 +39,7 @@ export function Gallery() {
           </div>
         </Reveal>
 
-        <motion.div layout className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           <AnimatePresence mode="popLayout">
             {items.map((t) => (
               <motion.div
@@ -79,9 +79,11 @@ export function Gallery() {
                 </div>
                 
                 {/* Optional subtle metadata outside image */}
-                <div className="flex items-center justify-between px-3 py-2">
-                  <span className="text-[11px] font-medium text-slate-600 dark:text-foreground/90">{t.title}</span>
-                  <span className="rounded bg-slate-100 dark:bg-popover px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-muted-foreground">
+                <div className="flex items-center justify-between gap-1.5 px-2.5 py-2 sm:px-3">
+                  <span className="line-clamp-1 text-[10px] sm:text-[11px] font-medium text-slate-600 dark:text-foreground/90" title={t.title}>
+                    {t.title}
+                  </span>
+                  <span className="hidden shrink-0 rounded bg-slate-100 dark:bg-popover px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-500 dark:text-muted-foreground sm:inline-block">
                     {t.category}
                   </span>
                 </div>
