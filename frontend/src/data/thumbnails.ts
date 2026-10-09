@@ -1,7 +1,7 @@
 import gaming from '@/assets/thumbs/gaming.jpg'
 import tech from '@/assets/thumbs/tech.jpg'
 import travel from '@/assets/thumbs/travel.jpg'
-import fitness from '@/assets/thumbs/fitness.jpg'
+
 import education from '@/assets/thumbs/education.jpg'
 import business from '@/assets/thumbs/business.jpg'
 import cinematic from '@/assets/thumbs/cinematic.jpg'

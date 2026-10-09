@@ -4,7 +4,7 @@ import { useScroll } from '@/hooks/use-scroll'
 import { Button } from '@/components/ui/button'
 import { Portal, PortalBackdrop } from '@/components/portal'
 import { XIcon, MenuIcon, Sun, Moon } from 'lucide-react'
-import { toast } from 'sonner'
+
 import { useTheme } from '@/hooks/use-theme'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'

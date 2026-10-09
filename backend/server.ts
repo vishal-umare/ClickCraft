@@ -19,9 +19,15 @@ await connectToMongoDB()
 
 const app = express();
 
-// Middleware
+app.set("trust proxy", 1);
+
+const allowedOrigins = ["http://localhost:3000", "http://localhost:5173"];
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: allowedOrigins,
     credentials: true
 }))
 
@@ -30,7 +36,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7  //Expires in 7 Days
+        maxAge: 1000 * 60 * 60 * 24 * 7,  //Expires in 7 Days
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
     },
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI as string,
@@ -57,6 +65,10 @@ app.use("/api/thumbnails", ThumbnailRouter);
 app.use("/api/users", UserRouter)
 
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== "production") {
+    app.listen(port, () => {
+        console.log(`Server is running at http://localhost:${port}`);
+    });
+}
+
+export default app;

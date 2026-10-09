@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import { Sparkles, ArrowRight } from 'lucide-react'
-import { Reveal, SectionLabel } from './primitives'
+import { Reveal } from './primitives'
 import { cn } from '@/lib/utils'
 import cinematic from '@/assets/thumbs/cinematic.jpg'
 

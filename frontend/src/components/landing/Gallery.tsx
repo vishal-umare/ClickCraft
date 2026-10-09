@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Download, ArrowRight } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { categories, thumbnails } from '@/data/thumbnails'
 import { Reveal, SectionLabel, scrollToId } from './primitives'
 import { cn } from '@/lib/utils'
