@@ -11,7 +11,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { AuthGateModal } from '@/components/AuthGateModal'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
 import { useGenerations } from '@/contexts/GenerationContext'
 
 import cinematic from '@/assets/thumbs/cinematic.jpg'
@@ -244,9 +245,10 @@ export function ProductPreview() {
   const [thumbnailStyle, setThumbnailStyle] = useState<ThumbnailStyle>('bold-graphic')
   const [colorScheme, setColorScheme] = useState<ColorScheme>('midnight')
   const [additionalPrompt, setAdditionalPrompt] = useState('')
-  const [showAuthGate, setShowAuthGate] = useState(false)
 
-  const { canGenerate, addGeneration } = useGenerations()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const { createGeneration } = useGenerations()
 
   // Generation state
   const [isGenerating, setIsGenerating] = useState(false)
@@ -283,46 +285,41 @@ export function ProductPreview() {
     .slice(0, 40)
 
   const handleGenerate = () => {
-    if (!canGenerate()) {
-      setShowAuthGate(true)
+    if (!isAuthenticated) {
+      navigate('/signup')
       return
     }
 
     setIsGenerating(true)
-    setTimeout(() => {
-      setIsGenerating(false)
-      if (isYoutube) {
-        setSelectedYoutubeVar(-1)
-        const newAsset = { ...defaultYoutubeAsset, headline }
-        setYoutubeAsset(newAsset)
-        
-        addGeneration({
-          title: titleOrTopic,
-          format: 'youtube',
-          style: thumbnailStyle,
-          colorScheme,
-          prompt: additionalPrompt,
-          imageUrl: newAsset.src,
-        })
-        
-        toast.success('YouTube thumbnail generated (1280 × 720)')
-      } else {
-        setSelectedShortsVar(-1)
-        const newAsset = { ...defaultShortsAssetTemplate, headline }
-        setShortsAsset(newAsset)
-        
-        addGeneration({
-          title: titleOrTopic,
-          format: 'shorts',
-          style: thumbnailStyle,
-          colorScheme,
-          prompt: additionalPrompt,
-          imageUrl: newAsset.src,
-        })
-        
-        toast.success('Shorts thumbnail generated (1080 × 1920)')
-      }
-    }, 1400)
+    createGeneration(titleOrTopic, format, thumbnailStyle, colorScheme, additionalPrompt)
+      .then((newGen) => {
+        setIsGenerating(false)
+        if (isYoutube) {
+          setSelectedYoutubeVar(-1)
+          const newAsset = { 
+            ...defaultYoutubeAsset, 
+            headline, 
+            src: newGen.imageUrl, 
+            variations: defaultYoutubeAsset.variations.map(v => ({...v, src: newGen.imageUrl})) 
+          }
+          setYoutubeAsset(newAsset)
+          toast.success('YouTube thumbnail generated (1280 × 720)')
+        } else {
+          setSelectedShortsVar(-1)
+          const newAsset = { 
+            ...defaultShortsAssetTemplate, 
+            headline, 
+            src: newGen.imageUrl,
+            variations: defaultShortsAssetTemplate.variations.map(v => ({...v, src: newGen.imageUrl})) 
+          }
+          setShortsAsset(newAsset)
+          toast.success('Shorts thumbnail generated (1080 × 1920)')
+        }
+      })
+      .catch(() => {
+        setIsGenerating(false)
+        toast.error('Failed to generate thumbnail')
+      })
   }
 
   const handleRegenerate = () => {
@@ -810,7 +807,6 @@ export function ProductPreview() {
           </div>
         </div>
       </div>
-      <AuthGateModal open={showAuthGate} onClose={() => setShowAuthGate(false)} />
     </div>
   )
 }

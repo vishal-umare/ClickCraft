@@ -41,8 +41,8 @@ export default function SignupPage() {
     try {
       await signup(name.trim(), email.trim(), password)
       navigate('/generate', { replace: true })
-    } catch {
-      setError('Signup failed. Please try again.')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Signup failed. Please try again.')
     } finally {
       setLoading(false)
     }

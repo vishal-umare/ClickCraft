@@ -191,7 +191,7 @@ function FieldLabel({ children, trailing }: { children: string; trailing?: React
 // ── Page Component ──
 
 export default function GeneratePage() {
-  const { addGeneration } = useGenerations()
+  const { createGeneration } = useGenerations()
 
   // Form state
   const [titleOrTopic, setTitleOrTopic] = useState('')
@@ -225,31 +225,38 @@ export default function GeneratePage() {
 
   const handleGenerate = () => {
     setIsGenerating(true)
-    setTimeout(() => {
-      setIsGenerating(false)
-      setSelectedVar(-1)
-
-      const asset = isYoutube
-        ? { ...defaultYoutubeAsset, headline }
-        : { ...defaultShortsAsset, headline }
-      setCurrentAsset(asset)
-
-      // Track generation
-      addGeneration({
-        title: titleOrTopic,
-        format,
-        style: thumbnailStyle,
-        colorScheme,
-        prompt: additionalPrompt,
-        imageUrl: asset.src,
+    
+    createGeneration(titleOrTopic, format, thumbnailStyle, colorScheme, additionalPrompt)
+      .then((newGen) => {
+        setIsGenerating(false)
+        setSelectedVar(-1)
+        
+        const asset = isYoutube
+          ? { 
+              ...defaultYoutubeAsset, 
+              headline, 
+              src: newGen.imageUrl,
+              variations: defaultYoutubeAsset.variations.map(v => ({...v, src: newGen.imageUrl})) 
+            }
+          : { 
+              ...defaultShortsAsset, 
+              headline, 
+              src: newGen.imageUrl,
+              variations: defaultShortsAsset.variations.map(v => ({...v, src: newGen.imageUrl})) 
+            }
+            
+        setCurrentAsset(asset)
+        
+        toast.success(
+          isYoutube
+            ? 'YouTube thumbnail generated (1280 × 720)'
+            : 'Shorts thumbnail generated (1080 × 1920)',
+        )
       })
-
-      toast.success(
-        isYoutube
-          ? 'YouTube thumbnail generated (1280 × 720)'
-          : 'Shorts thumbnail generated (1080 × 1920)',
-      )
-    }, 1400)
+      .catch(() => {
+        setIsGenerating(false)
+        toast.error('Failed to generate thumbnail')
+      })
   }
 
   const handleDownload = () => {

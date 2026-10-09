@@ -37,8 +37,8 @@ export default function LoginPage() {
     try {
       await login(email.trim(), password)
       navigate(from, { replace: true })
-    } catch {
-      setError('Login failed. Please try again.')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }

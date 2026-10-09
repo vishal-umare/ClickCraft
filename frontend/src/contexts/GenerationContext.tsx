@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { useAuth } from './AuthContext'
+import { generationApi } from '@/api/generationApi'
 
 // ── Types ──
 
 export interface Generation {
   id: string
-  userId: string | null // null = guest
+  userId: string | null
   title: string
   format: 'youtube' | 'shorts'
   style: string
@@ -18,93 +19,70 @@ export interface Generation {
 
 interface GenerationContextValue {
   generations: Generation[]
-  guestGenerationUsed: boolean
-  canGenerate: () => boolean
-  addGeneration: (gen: Omit<Generation, 'id' | 'userId' | 'createdAt'>) => void
+  loading: boolean
+  fetchGenerations: () => Promise<void>
+  createGeneration: (title: string, format: 'youtube' | 'shorts', style: string, colorScheme: string, prompt: string) => Promise<Generation>
+  deleteGeneration: (id: string) => Promise<void>
 }
 
 // ── Context ──
 
 const GenerationContext = createContext<GenerationContextValue | null>(null)
 
-// ── Storage helpers ──
-
-const GUEST_KEY = 'clickcraft-guest-generated'
-const GENERATIONS_KEY = 'clickcraft-generations'
-
-function loadGuestState(): boolean {
-  return localStorage.getItem(GUEST_KEY) === 'true'
-}
-
-function loadGenerations(userId: string | null): Generation[] {
-  try {
-    const all: Generation[] = JSON.parse(localStorage.getItem(GENERATIONS_KEY) || '[]')
-    if (!userId) return []
-    return all.filter((g) => g.userId === userId)
-  } catch {
-    return []
-  }
-}
-
-function persistGeneration(gen: Generation) {
-  try {
-    const all: Generation[] = JSON.parse(localStorage.getItem(GENERATIONS_KEY) || '[]')
-    all.unshift(gen)
-    localStorage.setItem(GENERATIONS_KEY, JSON.stringify(all))
-  } catch {}
-}
-
-function generateId(): string {
-  return `gen_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-}
-
 // ── Provider ──
 
 export function GenerationProvider({ children }: { children: ReactNode }) {
-  const { user, isAuthenticated } = useAuth()
-  const [guestGenerationUsed, setGuestGenerationUsed] = useState(loadGuestState)
+  const { isAuthenticated } = useAuth()
   const [generations, setGenerations] = useState<Generation[]>([])
+  const [loading, setLoading] = useState(false)
 
-  // Reload generations when user changes
+  const fetchGenerations = useCallback(async () => {
+    if (!isAuthenticated) {
+      setGenerations([])
+      return
+    }
+    
+    setLoading(true)
+    try {
+      const data = await generationApi.getGenerations()
+      setGenerations(data)
+    } catch (error) {
+      console.error('Failed to fetch generations:', error)
+      setGenerations([])
+    } finally {
+      setLoading(false)
+    }
+  }, [isAuthenticated])
+
   useEffect(() => {
-    setGenerations(loadGenerations(user?.id ?? null))
-  }, [user?.id])
+    fetchGenerations()
+  }, [fetchGenerations])
 
-  const canGenerate = useCallback(() => {
-    if (isAuthenticated) return true
-    return !guestGenerationUsed
-  }, [isAuthenticated, guestGenerationUsed])
+  const createGeneration = useCallback(async (
+    title: string,
+    format: 'youtube' | 'shorts',
+    style: string,
+    colorScheme: string,
+    prompt: string
+  ) => {
+    const newGen = await generationApi.createGeneration(title, format, style, colorScheme, prompt)
+    setGenerations(prev => [newGen, ...prev])
+    return newGen
+  }, [])
 
-  const addGeneration = useCallback(
-    (gen: Omit<Generation, 'id' | 'userId' | 'createdAt'>) => {
-      const full: Generation = {
-        ...gen,
-        id: generateId(),
-        userId: user?.id ?? null,
-        createdAt: new Date().toISOString(),
-      }
-
-      if (!isAuthenticated) {
-        // Mark guest generation as used
-        setGuestGenerationUsed(true)
-        localStorage.setItem(GUEST_KEY, 'true')
-        // Don't persist guest generations to the history
-        return
-      }
-
-      persistGeneration(full)
-      setGenerations((prev) => [full, ...prev])
-    },
-    [user?.id, isAuthenticated],
-  )
+  const deleteGeneration = useCallback(async (id: string) => {
+    await generationApi.deleteGeneration(id)
+    setGenerations(prev => prev.filter(g => g.id !== id))
+  }, [])
 
   return (
     <GenerationContext.Provider
       value={{
         generations,
-        guestGenerationUsed,
-        canGenerate,
-        addGeneration,
+        loading,
+        fetchGenerations,
+        createGeneration,
+        deleteGeneration,
       }}
     >
       {children}
