@@ -13,6 +13,7 @@ export interface User {
 interface AuthContextValue {
   user: User | null
   isAuthenticated: boolean
+  isLoading: boolean
   login: (email: string, password: string) => Promise<void>
   signup: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     // Check for existing session on mount
@@ -36,6 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         // Not authenticated or session expired (e.g., 401/404)
         setUser(null)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -67,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        isLoading,
         login,
         signup,
         logout,
